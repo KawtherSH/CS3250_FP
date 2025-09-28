@@ -51,4 +51,13 @@ public class Game {
 	public void setInventory(Inventory inventory) {
 		this.inventory = inventory;
 	}
+	
+	// Methods 
+	public void Info() {
+        System.out.println("This game is made by Kawther A.");
+    }
+	
+	public void startLevel() {
+        System.out.println("Starting level: Entering the room..");
+    }
 }

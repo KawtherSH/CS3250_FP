@@ -14,7 +14,8 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
-		Scene scene = new Scene (new MainMenu(), 800, 500);
+		Scene scene = new Scene (new MainMenu(primaryStage), 1000, 750);
+		scene.getStylesheets().add(getClass().getResource("/ThemeStyle/theme.css").toExternalForm());
 		primaryStage.setTitle("Escape Room Game");
 		primaryStage.setScene(scene);
 		primaryStage.show();

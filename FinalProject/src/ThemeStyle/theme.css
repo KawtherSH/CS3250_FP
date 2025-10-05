@@ -1,0 +1,38 @@
+// Code adapted with assistance from ChatGPT (Aug 2025).
+// Prompt: "How do I use a photo as a button in JavaFX?"
+// Student review: Used a photo for the buttons
+.button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-background-image: url("/Images/Button.png");
+    -fx-background-size: cover;       
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+
+    /* lock size to your asset */
+    -fx-min-width: 180; -fx-pref-width: 180;
+    -fx-min-height: 60;  -fx-pref-height: 60;
+}
+.button:hover   { -fx-background-image: url("/Images/ButtonHover.png"); }
+.button:pressed { -fx-background-image: url("/Images/Button.png"); }
+
+.button:focused { -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 10, 0.2, 0, 0); }
+
+.main-menu {
+    -fx-background-image: url("/Images/background.jpg"); 
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-background-size: cover; 
+}
+
+.hallway {
+    -fx-background-image: url("/Images/hallway.png"); 
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-background-size: cover; 
+}
+
+.root {
+  -fx-font-family: "Lucida Calligraphy";
+  -fx-font-size: 15px; 
+}

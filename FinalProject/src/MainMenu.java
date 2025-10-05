@@ -20,6 +20,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 
 public class MainMenu extends BorderPane {
@@ -27,10 +28,13 @@ public class MainMenu extends BorderPane {
 	// variable to start the level and settings 
 	private final Game game = new Game();
 	private final Settings settings = new Settings();
-	
-	public MainMenu() {
+	public MainMenu(Stage stage) {
 		
 		setPadding(new Insets(20));
+		
+		// Background
+		getStyleClass().add("main-menu");
+
 		
         // Top: Displays the game title
         Label title = new Label("Escape Room!");
@@ -40,7 +44,7 @@ public class MainMenu extends BorderPane {
         setTop(top);
 
         // Left: Menu buttons for the player to choose what to do
-        Button startButton = new Button("Start level");
+        Button startButton = new Button("Start");
         Button settingsButton = new Button("Settings");
         Button quitButton = new Button("Quit game");
 
@@ -87,11 +91,6 @@ public class MainMenu extends BorderPane {
         setBottom(bottom);
         
         
-        
-        // Events: connection to my project’s classes
-        // Start the level so the player could play the game/continue their progress
-        startButton.setOnAction(event -> game.startLevel());
-        
         // Displays info about the game and creator 
         infoButton.setOnAction(event -> game.Info());
         
@@ -100,6 +99,20 @@ public class MainMenu extends BorderPane {
         
         // Exits the game
         quitButton.setOnAction(event -> Platform.exit());
+        
+	     // Code adapted with assistance from ChatGPT (Oct 2025).
+	     // Prompt: "I have a class that extends scene, how do I move to the next scene when I click a button?"
+	     // Student review: Used a photo for the buttons
+        // Move to the next Scene 
+        startButton.setOnAction(e -> {
+
+            // Create your Scene subclass
+            SelectLevelScene next = new SelectLevelScene();
+
+            // keep window size and styles
+            next.getStylesheets().addAll(stage.getScene().getStylesheets());
+            stage.setScene(next);
+        });
         
     }
 

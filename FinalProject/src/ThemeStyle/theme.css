@@ -19,7 +19,7 @@
 .button:focused { -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 10, 0.2, 0, 0); }
 
 .main-menu {
-    -fx-background-image: url("/Images/background.jpg"); 
+    -fx-background-image: url("/Images/MainMenu.png"); 
     -fx-background-repeat: no-repeat;
     -fx-background-position: center;
     -fx-background-size: cover; 

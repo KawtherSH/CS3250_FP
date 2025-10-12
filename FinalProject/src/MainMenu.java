@@ -92,7 +92,7 @@ public class MainMenu extends BorderPane {
         
         
         // Displays info about the game and creator 
-        infoButton.setOnAction(event -> game.Info());
+        infoButton.setOnAction(event -> System.out.println("This game is made by: Kawther A"));
         
         // should redirect player to settings menu
         settingsButton.setOnAction(event -> settings.settingsMenu());
@@ -100,9 +100,9 @@ public class MainMenu extends BorderPane {
         // Exits the game
         quitButton.setOnAction(event -> Platform.exit());
         
-	     // Code adapted with assistance from ChatGPT (Oct 2025).
-	     // Prompt: "I have a class that extends scene, how do I move to the next scene when I click a button?"
-	     // Student review: Used a photo for the buttons
+	    // Code adapted with assistance from ChatGPT (Oct 2025).
+	    // Prompt: "I have a class that extends scene, how do I move to the next scene when I click a button?"
+	    // Student review: Used a photo for the buttons
         // Move to the next Scene 
         startButton.setOnAction(e -> {
 

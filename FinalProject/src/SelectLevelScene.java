@@ -117,7 +117,7 @@ public class SelectLevelScene extends Scene
         root.setCenter(center);
         
     	// NOTE: Character will be changed after I finish drawing mine.
-        avatarStripeSheet = loadImage("Images/gray_elf_walk_cycle.png");
+        avatarStripeSheet = loadImage("Images/avatarT.png");
         startAnimation();
     }
 	        	 
@@ -127,12 +127,23 @@ public class SelectLevelScene extends Scene
 	private Button makeLevelButton(String label) {
 	        Button b = new Button(label);
 	        b.setOnAction(e -> {
-	            // TODO: When we learn how to control character; Set up a scene to enter the room
 	            LoadingMessage("Entering the room...");
-	            
+
+	            PauseTransition delay = new PauseTransition(javafx.util.Duration.millis(800));
+	            delay.setOnFinished(ev -> {
+
+	                Stage stage = (Stage) getWindow();
+	                LevelScene levelScene = new LevelScene(stage);
+	                levelScene.getGame().setLevelBackground("Images/" + label + ".png");
+	                stage.setScene(levelScene);
+	                levelScene.getGame().requestFocus();
+	            });
+	            delay.play();
 	        });
-	        return b;
-	    }
+
+	        return b;  
+	        }
+
 	
 	// Code adapted with assistance from GeminiAI (Google) (Oct 2025).
     // Prompt: "How do I get the scene for another Scene in JavaFX?"
@@ -151,7 +162,6 @@ public class SelectLevelScene extends Scene
     }
 	
 	// Character moving
-	// NOTE: Character will be changed after I finish drawing mine.
 	private void startAnimation()
 	{
 

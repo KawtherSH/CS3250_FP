@@ -1,96 +1,112 @@
 import javafx.animation.AnimationTimer;
-import javafx.geometry.Bounds;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
-import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
+
 
 public class Game extends Pane {
 
-	// Code adapted with assistance from ChatGPT (Oct 2025).
-	// Prompt: "I have a sprite that has the movement sheet, and I have one separate frame for 'Idle' what are the 
-	// 				calculations to get the movements correctly?"
-	// Student review: used the calculations to set the movements and flip the character.
+		
 	// Variables 
-    private final Image walkSheet  = new Image("Images/avatarT.png");   
-    private final Image idleImage    = new Image("Images/Idle.png");   
-    private final Image backImage    = new Image("Images/backA.png");   
-
-    private final int FRAME_W = 100;
-    private final int FRAME_H = 100;
-    private final int WALK_FRAMES = 4;          
-    private final double WALK_FPS = 10.0;       
 
     // Player
-    private final ImageView player = new ImageView();
-    private double x = 100;                      
-    private final double speed = 200;            
+    private final Player player = new Player();
     private boolean moveLeft = false, moveRight = false;
-    private boolean showingBack = false;
-    private long backUntilNanos = 0;
-
-    // walk animation
-    private double frameAcc = 0.0;
-    private int frameIndex = 0;
-
-    // current facing: flip
-    private int facing = 1;
-
-    private enum Mode { IDLE, WALK, BACK }
-    private Mode mode = Mode.IDLE;
 
     private final AnimationTimer loop;
 
-    // door 
-    private int currentFloor = 1; // start on the middle 
+    // doors 
+    private Door topDoor, midDoor, botDoor, exitDoor;
+    private int currentFloor = 1; // middle 
+    
+    // chests
+    private Chest chest;
+    
+    // letter
+    private Letter letter;
+
 
     // height and width
     private static final int SCENE_W = 1000;
-    private static final int SCENE_H = 750;
-    private static final double BAND_H = SCENE_H / 3.0;
+    private static final int SCENE_H = 700;
+    private static final double DOOR_H = SCENE_H / 3.0;
 
-    private Rectangle topDoorRect, midDoorRect, botDoorRect;
-    
     // background for levels
     private final ImageView bgView = new ImageView();
+    
+    // Level completed
+    private boolean gameComplete = false;
 
     
     public Game() {
         setPrefSize(SCENE_W, SCENE_H);
 
         // get player 
-        player.setImage(idleImage);
-        player.setFitWidth(FRAME_W);
-        player.setFitHeight(FRAME_H);
-        player.setViewport(null); 
+        // adding player to pane
         getChildren().add(bgView);
-        getChildren().add(player);
+        getChildren().add(player.getView());
         
-
         // current floor
         player.setLayoutY(yForFloorCenter(currentFloor));
         
         setFocusTraversable(true);
+        
+        // controls 
         setOnKeyPressed(e -> {
             KeyCode c = e.getCode();
-            if (c == KeyCode.D)  
-            	moveRight = true;
-            if (c == KeyCode.A)   
-            	moveLeft  = true;
+            if (c == KeyCode.D) moveRight = true;
+            if (c == KeyCode.A) moveLeft  = true;
             if (c == KeyCode.W) {
-            	// show back frame
-            	showBackFrame(400);
-            	// one floor up 
-            	if (canGoUp()) stepFloor(-1);
+                showBackFrame(250);
+                if (CompleteGame()) return;
+                if (canGoUp()) stepFloor(-1);
             }
             if (c == KeyCode.S) {
-            	// show back frame
-            	showBackFrame(400);
-            	// one floor down
-            	if (canGoDown()) stepFloor(+1);
+                showBackFrame(250);
+                if (canGoDown()) stepFloor(+1);
             }
+            // E to interact with chest or letter
+            if (c == KeyCode.E) {
+
+                if (letter != null
+                    && letter.getFloor() == currentFloor
+                    && letter.intersects(player.getBoundsInParent())) {
+
+                    Stage owner = getScene() != null && getScene().getWindow() instanceof Stage
+                        ? (Stage) getScene().getWindow() : null;
+
+                    // If you switched to the generic Overlay, use Overlay.showMessage(...)
+                    RiddleOverlay.show(owner, letter.getImagePath(), letter.getRiddleText());
+                    return; // stop here so we don't also trigger the chest
+                }
+
+                if (chest != null
+                    && chest.getFloor() == currentFloor
+                    && chest.intersects(player.getBoundsInParent())) {
+
+                    if (chest.getIsLocked()) {
+                        Stage owner = getScene() != null && getScene().getWindow() instanceof Stage
+                            ? (Stage) getScene().getWindow() : null;
+
+                        // If using the generic Overlay, call Overlay.showPrompt(...)
+                        LockOverlay.show(owner, "Images/lock.png", entered -> {
+                            if (entered.equals(chest.getCombo())) {
+                                chest.onUnlocked();
+                                System.out.println("You got: " + chest.getItemName());
+                            } else {
+                                System.out.println("Wrong code.");
+                            }
+                        });
+                    } else {
+                        System.out.println("Chest is already unlocked.");
+                    }
+                }
+            }
+
+            
+            
         });
         
         setOnKeyReleased(e -> {
@@ -101,12 +117,41 @@ public class Game extends Pane {
             	moveLeft  = false;
         });
         
-        // hitboxes
+        
+        
+        
+        
         // TODO: set the correct cords when you finish background
-        topDoorRect = makeDoorHitbox(600, bandTopConst(0) + 20, 60, 100); // top - 0
-        midDoorRect = makeDoorHitbox(720, bandTopConst(1) + 20, 60, 100); // middle - 1
-        botDoorRect = makeDoorHitbox( 40, bandTopConst(2) + 20, 60, 100); // bottom  - 2
-        getChildren().addAll(topDoorRect, midDoorRect, botDoorRect);
+        // Hitbox (x, y, w, h, floor, opacity)
+        topDoor = Door.make(100, yForFloorCenter(0) + 20, 60, 100, 0, 0.3); // y = yForFloorCenter(#) = the cords for the floors
+        midDoor = Door.make(830, yForFloorCenter(1) + 20, 60, 100, 1, 0.3);
+        botDoor = Door.make(100, yForFloorCenter(2) + 20, 60, 100, 2, 0.3);
+        
+        // TODO: add an exit door
+        exitDoor = Door.make(925, yForFloorCenter(2) +10, 60, 100, 2, 0.3);
+        exitDoor.setIsLocked(false);
+
+        
+        getChildren().addAll(topDoor.getRect(), midDoor.getRect(), botDoor.getRect(), exitDoor.getRect());
+
+        // pair doors with the correct (other) door and movement
+        midDoor.setUpTarget(topDoor).setDownTarget(botDoor);
+        topDoor.setDownTarget(midDoor);
+        botDoor.setUpTarget(midDoor);
+        
+        // chests 
+        chest = Chest.make(450, yForFloorCenter(1) + 40, 80, 60, 1, 0.25);
+        chest.setCombo("1234");        
+        chest.setItemName("Exit Key"); // player gets 
+        chest.addTo(this);
+        
+        // letter
+        letter = Letter.make(220, yForFloorCenter(1) + 10, 80, 60, 1, 0.25);
+        	letter.setImagePath("Images/Letter.png");
+        	letter.setRiddleText(
+        	    "ADD: Riddle"       	    
+        	);
+    	letter.addTo(this);
 
         // Game loop
         loop = new AnimationTimer() {
@@ -122,67 +167,19 @@ public class Game extends Pane {
     }
 
     private void move(long nowNanos, double dt) {
-        
-        if (showingBack && nowNanos >= backUntilNanos) {
-            showingBack = false;
-        }
-
+        // Calculate horizontal input here (controls live in Game)
         int dir = (moveRight ? 1 : 0) - (moveLeft ? 1 : 0);
-        double vx = dir * speed;
-        if (dir != 0) facing = dir;
 
-        x += vx * dt;
-        x = clamp(x, 0, SCENE_W - FRAME_W); // fixed width
-
-        Mode newMode;
-        if (showingBack) newMode = Mode.BACK;
-        else if (dir != 0) newMode = Mode.WALK;
-        else newMode = Mode.IDLE;
-
-        if (newMode != mode) {
-            mode = newMode;
-            switch (mode) {
-                case IDLE -> {
-                    player.setImage(idleImage);
-                    player.setViewport(null);
-                }
-                case WALK -> {
-                    player.setImage(walkSheet);
-                    // start on frame 0
-                    frameIndex = 0;
-                    frameAcc = 0;
-                    player.setViewport(new Rectangle2D(0, 0, FRAME_W, FRAME_H));
-                }
-                case BACK -> {
-                    player.setImage(backImage);
-                    player.setViewport(null);
-                }
-            }
-        }
-
-        // used calculations from ChatGPT 
-        if (mode == Mode.WALK) {
-            frameAcc += dt;
-            double frameDuration = 1.0 / WALK_FPS;
-            while (frameAcc >= frameDuration) {
-                frameAcc -= frameDuration;
-                frameIndex = (frameIndex + 1) % WALK_FRAMES;
-                double sx = frameIndex * FRAME_W;
-                player.setViewport(new Rectangle2D(sx, 0, FRAME_W, FRAME_H));
-            }
-        }
-
-        player.setScaleX(facing == -1 ? -1 : 1);
-
-        player.setLayoutX(x);
+        // Delegate motion + animation to Player
+        player.update(nowNanos, dt, dir, SCENE_W);
 
         // lock Y 
         player.setLayoutY(yForFloorCenter(currentFloor));
-    	}
+    }
 
     private void showBackFrame(long millis) {
-        showingBack = true;
-        backUntilNanos = System.nanoTime() + millis * 1_000_000L;
+        // delegate the visual to Player (keep method & comment for your notes)
+        player.showBackFrame(millis);
     }
 
     private static double clamp(double v, double lo, double hi) {
@@ -192,66 +189,68 @@ public class Game extends Pane {
     // Code adapted with assistance from ChatGPT (Oct 2025).
 	// Prompt: "I have this code for using a door, what are the calculations I could use to be able to use it when I press up/w"
 	// Student review: applied the calculations on my methods.
-    // (Note: Door logic removed for the simplified W/S floor switching. Comments kept as requested.)
 
-    private double bandTopConst(int floor) { return BAND_H * floor; }
     private double yForFloorCenter(int floor) {
-        return bandTopConst(floor) + (BAND_H - FRAME_H) / 2.0;
+        return (DOOR_H * floor) + (DOOR_H - player.getFrameH()) / 1;
     }
 
-    // hitboxes 
-    private Rectangle makeDoorHitbox(double x, double y, double w, double h) {
-        Rectangle r = new Rectangle(x, y, w, h);
-        r.setOpacity(0.3);          // (0.001) 
-        r.setMouseTransparent(true);
-        return r;
+    // Assigning each door to the correct floor
+    private Door doorForCurrentFloor() {
+        return (currentFloor == 0) ? topDoor
+             : (currentFloor == 1) ? midDoor
+             : botDoor;
     }
-    
-    // center X 
-    private double spawnXAt(Rectangle r) {
-        return r.getX() + r.getWidth()/2.0 - FRAME_W/2.0;
-    }
-    
-    // go up/down one floor
-    private void stepFloor(int delta) {
-        int target = Math.max(0, Math.min(2, currentFloor + delta)); // clamp 0..2
-        if (target == currentFloor) return;
 
-        // choose destination door rect based on direction + current floor
-        Rectangle dest;
-        if (delta < 0) { // going UP
-            dest = (currentFloor == 2) ? midDoorRect     // bottom -> mid
-                  : (currentFloor == 1) ? topDoorRect    // mid -> top
-                  : null;                                 // top can't go up
-        } else { // delta > 0, going DOWN
-            dest = (currentFloor == 0) ? midDoorRect     // top -> mid
-                  : (currentFloor == 1) ? botDoorRect    // mid -> bottom
-                  : null;                                 // bottom can't go down
-        }
+    private boolean canGoUp()    
+    { 
+    	var d = doorForCurrentFloor(); 
+    	return d != null && d.getUpTarget() != null && d.intersects(player.getBoundsInParent()); 
+	}
+    private boolean canGoDown()  
+    { 
+    	var d = doorForCurrentFloor(); 
+    	return d != null && d.getDownTarget() != null && d.intersects(player.getBoundsInParent()); 
+	}
+    
+    // Changing floors
+    private void stepFloor(int delta) 
+    {
+        Door here = doorForCurrentFloor();
+        if (here == null) return;
+        Door dest = (delta < 0) ? here.getUpTarget() : here.getDownTarget();
         if (dest == null) return;
 
-        // center X 
-        x = clamp(spawnXAt(dest), 0, SCENE_W - FRAME_W);
-        player.setLayoutX(x);
-
-        currentFloor = target;
+        double newX = clamp(dest.spawnX(player.getFrameW()), 0, SCENE_W - player.getFrameW());
+        player.setX(newX);
+        currentFloor = dest.getFloor();
         player.setLayoutY(yForFloorCenter(currentFloor));
-
+        
         requestFocus();
     }
+     
+    
+    // TODO: Game is completed
+    private boolean CompleteGame() {
+        if (gameComplete || exitDoor == null) return false;
 
-   
-    private boolean canGoUp() {
-        Bounds pb = player.getBoundsInParent();
-        if (currentFloor == 1) return pb.intersects(midDoorRect.getBoundsInParent());   // mid -> top
-        if (currentFloor == 2) return pb.intersects(botDoorRect.getBoundsInParent());   // bot -> mid
-        return false;
-    }
+        if (exitDoor.getFloor() == currentFloor &&
+            exitDoor.intersects(player.getBoundsInParent())) {
 
-    private boolean canGoDown() {
-        Bounds pb = player.getBoundsInParent();
-        if (currentFloor == 0) return pb.intersects(topDoorRect.getBoundsInParent());   // top -> mid
-        if (currentFloor == 1) return pb.intersects(midDoorRect.getBoundsInParent());   // mid -> bot
+            if (!exitDoor.getIsLocked()) 
+            { 
+                gameComplete = true;
+                System.out.println("PHEW! You Escaped!");
+                
+                // TODO: show massages on GUI instead of console
+                
+                return true;
+            } 
+            else 
+            {
+                System.out.println("Exit is locked. Find the key.");
+                return true; 
+            }
+        }
         return false;
     }
     

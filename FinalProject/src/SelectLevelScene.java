@@ -116,7 +116,6 @@ public class SelectLevelScene extends Scene
         center.setAlignment(Pos.BOTTOM_RIGHT);
         root.setCenter(center);
         
-    	// NOTE: Character will be changed after I finish drawing mine.
         avatarStripeSheet = loadImage("Images/avatarT.png");
         startAnimation();
     }
@@ -129,7 +128,7 @@ public class SelectLevelScene extends Scene
 	        b.setOnAction(e -> {
 	            LoadingMessage("Entering the room...");
 
-	            PauseTransition delay = new PauseTransition(javafx.util.Duration.millis(800));
+	            PauseTransition delay = new PauseTransition(javafx.util.Duration.millis(900));
 	            delay.setOnFinished(ev -> {
 
 	                Stage stage = (Stage) getWindow();

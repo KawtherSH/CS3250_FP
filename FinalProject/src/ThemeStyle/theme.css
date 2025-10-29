@@ -13,6 +13,7 @@
     -fx-min-width: 180; -fx-pref-width: 180;
     -fx-min-height: 60;  -fx-pref-height: 60;
 }
+
 .button:hover   { -fx-background-image: url("/Images/ButtonHover.png"); }
 .button:pressed { -fx-background-image: url("/Images/Button.png"); }
 

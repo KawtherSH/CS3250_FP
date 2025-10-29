@@ -9,7 +9,7 @@ public class LevelScene extends Scene {
     private final Game game;
 
             public LevelScene(Stage stage) {
-            super(new BorderPane(), 1000, 750);           
+            super(new BorderPane(), 1000, 700);           
             BorderPane root = (BorderPane) getRoot();
             this.game = new Game();
             root.setCenter(game);

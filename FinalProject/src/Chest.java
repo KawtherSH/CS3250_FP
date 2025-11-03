@@ -1,33 +1,31 @@
-import javafx.geometry.Bounds;
-import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 
-public class Chest {
+public class Chest extends Item {
 
-    private final Rectangle rect;   // hitbox
     private Boolean isLocked = true;
-    private final int floor;
     private String combo = "1234";    
-    private String itemName = "Key";  // player need to get to unlock
+    private String itemName = "Key";  // The item player obtains when unlocked
 
-    public Chest(Rectangle rect, boolean isLocked, int floor) {
-        this.rect = rect;
+    // Constructor
+    public Chest(String id, String name, boolean isLocked, Rectangle rect, int floor) {
+        super(id, name, false, false, rect, floor);
         this.isLocked = isLocked;
-        this.floor = floor;
     }
-
-    // Create hitbox
-    public static Chest make(double x, double y, double w, double h, int floor, double opacity) {
+    
+    //Chest hitbox
+    public static Chest make(double x, double y, double w, double h, int floor, double opacity, String id, String name) {
         Rectangle r = new Rectangle(x, y, w, h);
         r.setOpacity(opacity);
-        r.setMouseTransparent(true);
-        return new Chest(r, true, floor);
+        // isLocked = true
+        return new Chest(id, name, true, r, floor);
     }
 
-    // Add hitbox to scene graph 
-    public void addTo(Pane root) {
-        root.getChildren().add(rect); // test
+    @Override
+    public boolean useOn(Object target) {
+        System.out.println(this.getName() + " is being interacted with. Is locked: " + isLocked);
+        return true; 
     }
+
 
     public void setIsLocked(Boolean isLocked) {
         this.isLocked = isLocked;
@@ -37,15 +35,6 @@ public class Chest {
         return isLocked;
     }
 
-    public Rectangle getRect() {
-        return rect;
-    }
-
-    public int getFloor() { return floor; }
-
-    public boolean intersects(Bounds playerBounds) {
-        return playerBounds.intersects(rect.getBoundsInParent());
-    }
 
     public double spawnX(int playerWidth) {
         return rect.getX() + rect.getWidth()/2.0 - playerWidth/2.0;
@@ -61,6 +50,8 @@ public class Chest {
     public void onUnlocked() {
         setIsLocked(false);
         System.out.println("Chest opened! You obtained: " + itemName);
+        
+        // TODO: Display on GUI
     }
 
 }

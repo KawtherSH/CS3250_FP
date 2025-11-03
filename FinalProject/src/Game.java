@@ -77,9 +77,8 @@ public class Game extends Pane {
                     Stage owner = getScene() != null && getScene().getWindow() instanceof Stage
                         ? (Stage) getScene().getWindow() : null;
 
-                    // If you switched to the generic Overlay, use Overlay.showMessage(...)
                     RiddleOverlay.show(owner, letter.getImagePath(), letter.getRiddleText());
-                    return; // stop here so we don't also trigger the chest
+                    return;
                 }
 
                 if (chest != null
@@ -90,7 +89,6 @@ public class Game extends Pane {
                         Stage owner = getScene() != null && getScene().getWindow() instanceof Stage
                             ? (Stage) getScene().getWindow() : null;
 
-                        // If using the generic Overlay, call Overlay.showPrompt(...)
                         LockOverlay.show(owner, "Images/lock.png", entered -> {
                             if (entered.equals(chest.getCombo())) {
                                 chest.onUnlocked();
@@ -123,12 +121,12 @@ public class Game extends Pane {
         
         // TODO: set the correct cords when you finish background
         // Hitbox (x, y, w, h, floor, opacity)
-        topDoor = Door.make(100, yForFloorCenter(0) + 20, 60, 100, 0, 0.3); // y = yForFloorCenter(#) = the cords for the floors
-        midDoor = Door.make(830, yForFloorCenter(1) + 20, 60, 100, 1, 0.3);
-        botDoor = Door.make(100, yForFloorCenter(2) + 20, 60, 100, 2, 0.3);
+        topDoor = Door.make(100, yForFloorCenter(0) + 20, 60, 100, 0, 0.3, "D001", "Top floor Door"); // y = yForFloorCenter(#) = the cords for the floors
+        midDoor = Door.make(830, yForFloorCenter(1) + 20, 60, 100, 1, 0.3, "D002", "Middle floor Door");
+        botDoor = Door.make(100, yForFloorCenter(2) + 20, 60, 100, 2, 0.3, "D003", "Bottom floor Door");
         
         // TODO: add an exit door
-        exitDoor = Door.make(925, yForFloorCenter(2) +10, 60, 100, 2, 0.3);
+        exitDoor = Door.make(925, yForFloorCenter(2) +10, 60, 100, 2, 0.3, "D004", "Exit Door");
         exitDoor.setIsLocked(false);
 
         
@@ -140,13 +138,13 @@ public class Game extends Pane {
         botDoor.setUpTarget(midDoor);
         
         // chests 
-        chest = Chest.make(450, yForFloorCenter(1) + 40, 80, 60, 1, 0.25);
+        chest = Chest.make(400, yForFloorCenter(1) + 40, 80, 60, 1, 0.25, "C01", "First floor chest");
         chest.setCombo("1234");        
-        chest.setItemName("Exit Key"); // player gets 
+        chest.setItemName("Middle Floor Key"); // player gets 
         chest.addTo(this);
         
         // letter
-        letter = Letter.make(220, yForFloorCenter(1) + 10, 80, 60, 1, 0.25);
+        letter = Letter.make(550, yForFloorCenter(1) + 10, 80, 60, 1, 0.25, "L01", "First floor letter");
         	letter.setImagePath("Images/Letter.png");
         	letter.setRiddleText(
         	    "ADD: Riddle"       	    
@@ -167,7 +165,7 @@ public class Game extends Pane {
     }
 
     private void move(long nowNanos, double dt) {
-        // Calculate horizontal input here (controls live in Game)
+        // Calculate horizontal input
         int dir = (moveRight ? 1 : 0) - (moveLeft ? 1 : 0);
 
         // Delegate motion + animation to Player
@@ -178,7 +176,6 @@ public class Game extends Pane {
     }
 
     private void showBackFrame(long millis) {
-        // delegate the visual to Player (keep method & comment for your notes)
         player.showBackFrame(millis);
     }
 

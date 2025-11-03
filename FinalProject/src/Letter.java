@@ -1,40 +1,27 @@
-import javafx.geometry.Bounds;
-import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 
-public class Letter {
+public class Letter extends Item {
 
-    private final Rectangle rect;   // hitbox
-    private final int floor;
-
-    private String imagePath = "Images/Letter.png";
+    private String imagePath = "Images/Letter.png"; // TODO:  Change the picture "WIP"
     private String riddleText = "Solve!";
 
-    public Letter(Rectangle rect, int floor) {
-        this.rect = rect;
-        this.floor = floor;
-        this.rect.setMouseTransparent(true);
+    // Constructor
+    public Letter(Rectangle rect, int floor, String id, String name) {
+        super(id, name, false, false, rect, floor);
     }
 
-    public static Letter make(double x, double y, double w, double h, int floor, double Opacity) {
+    //Letter hitbox
+    public static Letter make(double x, double y, double w, double h, int floor, double Opacity, String id, String name) {
         Rectangle r = new Rectangle(x, y, w, h);
         r.setOpacity(Opacity);          
-        r.setMouseTransparent(true);
-        return new Letter(r, floor);
+        return new Letter(r, floor, id, name);
     }
 
-    // TODO: DELETE: for debugging
-    public void addTo(Pane root) {
-        root.getChildren().add(rect); // test
+    @Override
+    public boolean useOn(Object target) {
+        System.out.println(this.riddleText);
+        return true; 
     }
-
-    public boolean intersects(Bounds playerBounds) {
-        return playerBounds.intersects(rect.getBoundsInParent());
-    }
-
-    public int getFloor() { return floor; }
-
-    public Rectangle getRect() { return rect; }
 
     public String getImagePath() { return imagePath; }
     public void setImagePath(String imagePath) { this.imagePath = imagePath; }

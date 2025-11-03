@@ -68,13 +68,6 @@ public class Item {
     }
 
 
-    // Add two item to create something to solve the puzzle
-    public Item combineWith(Item other) {
-    	System.out.println("Combining X with Y gives Z");
-        return null;
-    }
-
-
 	public String getDescription() {
 		return description;
 	}

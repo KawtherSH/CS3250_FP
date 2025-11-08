@@ -13,8 +13,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -26,7 +24,6 @@ import javafx.stage.Stage;
 public class MainMenu extends BorderPane {
 	
 	// variable to start the level and settings 
-	private final Game game = new Game();
 	private final Settings settings = new Settings();
 	public MainMenu(Stage stage) {
 		
@@ -62,26 +59,7 @@ public class MainMenu extends BorderPane {
 
         VBox leftColumn = new VBox(topSpacer, menu, bottomSpacer);
         setLeft(leftColumn);   
-        
-        // Right: Allows the player to choose the game difficulty 
-        Label difficultyLabel = new Label("Difficulty");
-        RadioButton easy   = new RadioButton("Easy");
-        RadioButton normal = new RadioButton("Normal");
-        RadioButton hard   = new RadioButton("Hard");
-        
-        // Grouping and default 
-        ToggleGroup difficultyGroup = new ToggleGroup();
-        easy.setToggleGroup(difficultyGroup);
-        normal.setToggleGroup(difficultyGroup);
-        hard.setToggleGroup(difficultyGroup);
-        normal.setSelected(true);
-        
-        VBox difficultyPane = new VBox(8, difficultyLabel, easy, normal, hard);
-        difficultyPane.setPadding(new Insets(0, 40, 0, 0)); 
-        difficultyPane.setMaxWidth(180);
-        setRight(difficultyPane );
-
-        
+                
         
         // Bottom: Button on the right corner "Displays Info about the game"
         Button infoButton = new Button("info");

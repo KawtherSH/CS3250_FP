@@ -76,7 +76,7 @@ public class SelectLevelScene extends Scene
         double ty = y + 33;                           
 		g.setFill(Color.BLACK);
 		g.setFont(Font.font("Lucida Calligraphy", FontWeight.BOLD, 25.0));
-        g.fillText("Cherecter: Rain", cx, ty);
+        g.fillText("Controls:", cx, ty);
 
         
         // Level buttons 
@@ -111,12 +111,14 @@ public class SelectLevelScene extends Scene
         
         StackPane characterPane = new StackPane(canvas, foreground);
 
-        // layout: buttons left, character right
+        // layout: buttons left, controls right
         HBox center = new HBox(30, grid, characterPane);
         center.setAlignment(Pos.BOTTOM_RIGHT);
         root.setCenter(center);
         
-        avatarStripeSheet = loadImage("Images/avatarT.png");
+        
+        // TODO: Make it bigger?
+        avatarStripeSheet = loadImage("Images/Control.png");
         startAnimation();
     }
 	        	 
@@ -173,7 +175,7 @@ public class SelectLevelScene extends Scene
 			private int col = 0;
 			
 			long lastupdate = System.nanoTime();
-			private final long DELAY = 30_000_000; // 30 Milliseconds
+			private final long DELAY = 1000_000_000; // 30 Milliseconds
 
 			@Override
 			public void handle(long now) 
@@ -184,12 +186,12 @@ public class SelectLevelScene extends Scene
 				fgc.drawImage(avatarStripeSheet, col * 100, row * 100, 100, 100, 200, 200, 100, 100);
 				
 				col++;
-				if (col == 4)
+				if (col == 2)
 				{
 					col = 0;
 					row++;
 				}
-				if (row == 6)
+				if (row == 2)
 				{
 					row = 0;
 					col = 0;

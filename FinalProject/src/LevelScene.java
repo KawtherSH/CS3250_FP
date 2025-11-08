@@ -1,6 +1,5 @@
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 // If your Game class is in another package, fix the import accordingly.

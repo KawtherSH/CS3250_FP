@@ -67,7 +67,7 @@ public class Game extends Pane {
                 showBackFrame(250);
                 if (canGoDown()) stepFloor(+1);
             }
-            // E to interact with chest or letter
+            // E to interact with items
             if (c == KeyCode.E) {
 
                 if (letter != null
@@ -77,7 +77,7 @@ public class Game extends Pane {
                     Stage owner = getScene() != null && getScene().getWindow() instanceof Stage
                         ? (Stage) getScene().getWindow() : null;
 
-                    RiddleOverlay.show(owner, letter.getImagePath(), letter.getRiddleText());
+                    Overlay.showRiddle(owner, "Images/Letter.png", letter.getRiddleText()); 
                     return;
                 }
 
@@ -89,8 +89,8 @@ public class Game extends Pane {
                         Stage owner = getScene() != null && getScene().getWindow() instanceof Stage
                             ? (Stage) getScene().getWindow() : null;
 
-                        LockOverlay.show(owner, "Images/lock.png", entered -> {
-                            if (entered.equals(chest.getCombo())) {
+                        LockOverlay.show(owner, code -> {
+                            if (c.equals(chest.getCombo())) {
                                 chest.onUnlocked();
                                 System.out.println("You got: " + chest.getItemName());
                             } else {
@@ -116,6 +116,9 @@ public class Game extends Pane {
         });
         
         
+        
+        
+        // TODO: Make a level # class for each level instead of everything being in Game.java...?
         
         
         

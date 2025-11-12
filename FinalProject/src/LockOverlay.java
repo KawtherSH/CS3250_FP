@@ -16,18 +16,13 @@ import javafx.stage.Stage;
 public class LockOverlay {
 
     public static void show(Stage owner,
-                            String lockImagePath,
                             Consumer<String> onSubmit) {
 
-        ImageView icon = new ImageView(new Image(lockImagePath));
-        icon.setFitWidth(96);
-        icon.setFitHeight(96);
 
         Label prompt = new Label("Enter the code to unlock:");
         PasswordField code = new PasswordField();
 
         Label feedback = new Label();
-        feedback.setStyle("-fx-text-fill: firebrick; -fx-font-size: 12px;");
 
         Button ok = new Button("Unlock");
         Button cancel = new Button("Cancel");
@@ -50,14 +45,12 @@ public class LockOverlay {
             ((Stage) cancel.getScene().getWindow()).close();
         });
 
-        VBox card = new VBox(12, icon, prompt, code, feedback, ok, cancel);
+        VBox card = new VBox(12, prompt, code, feedback, ok, cancel);
         card.setAlignment(Pos.CENTER);
         card.setPadding(new Insets(20));
-        card.setStyle("-fx-background-color: white; -fx-border-color: #333; -fx-border-radius: 12; -fx-background-radius: 12;");
 
         StackPane root = new StackPane(card);
         root.setPadding(new Insets(20));
-        root.setStyle("-fx-background-color: rgba(0,0,0,0.4);");
 
         Stage dialog = new Stage();
         dialog.initOwner(owner);

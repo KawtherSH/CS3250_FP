@@ -1,4 +1,7 @@
 import javafx.animation.AnimationTimer;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -89,12 +92,16 @@ public class Game extends Pane {
                         Stage owner = getScene() != null && getScene().getWindow() instanceof Stage
                             ? (Stage) getScene().getWindow() : null;
 
-                        LockOverlay.show(owner, code -> {
+                        Overlay.showLock(owner, code -> {
                             if (c.equals(chest.getCombo())) {
                                 chest.onUnlocked();
                                 System.out.println("You got: " + chest.getItemName());
                             } else {
                                 System.out.println("Wrong code.");
+                                
+                                // TESTING
+                                LoadingMessage("TESTING");
+                                
                             }
                         });
                     } else {
@@ -258,4 +265,17 @@ public class Game extends Pane {
     public void setLevelBackground(String imagePath) {
         bgView.setImage(new Image(imagePath));
     }
+    
+    // TODO: Create a pop-up message method
+    
+    
+    private void LoadingMessage(String message) {
+	    Label card = new Label(message);
+	    card.setPadding(new Insets(16, 28, 16, 28));
+	    card.setAlignment(Pos.CENTER);
+	    getChildren().add(card);
+    }
+    
+    
+    
 }

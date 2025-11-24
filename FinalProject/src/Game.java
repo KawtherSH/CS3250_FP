@@ -1,4 +1,7 @@
 import javafx.animation.AnimationTimer;
+import javafx.animation.FadeTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.SequentialTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -6,7 +9,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 
 public class Game extends Pane {
@@ -93,19 +99,15 @@ public class Game extends Pane {
                             ? (Stage) getScene().getWindow() : null;
 
                         Overlay.showLock(owner, code -> {
-                            if (c.equals(chest.getCombo())) {
+                            if (code.equals(chest.getCombo())) {
                                 chest.onUnlocked();
-                                System.out.println("You got: " + chest.getItemName());
-                            } else {
-                                System.out.println("Wrong code.");
-                                
-                                // TESTING
-                                LoadingMessage("TESTING");
-                                
+                                LoadingMessage("You got: " + chest.getItemName());
+                            } else {                                
+                                LoadingMessage("Wrong Code, Noop..");
                             }
                         });
                     } else {
-                        System.out.println("Chest is already unlocked.");
+                    	LoadingMessage("Chest is already unlocked.");
                     }
                 }
             }
@@ -246,15 +248,15 @@ public class Game extends Pane {
             if (!exitDoor.getIsLocked()) 
             { 
                 gameComplete = true;
-                System.out.println("PHEW! You Escaped!");
+                LoadingMessage("PHEW! You Escaped!");
                 
-                // TODO: show massages on GUI instead of console
+                // TODO: return to Select level Scene
                 
                 return true;
             } 
             else 
             {
-                System.out.println("Exit is locked. Find the key.");
+            	LoadingMessage("Exit is locked. Find the key.");
                 return true; 
             }
         }
@@ -266,14 +268,41 @@ public class Game extends Pane {
         bgView.setImage(new Image(imagePath));
     }
     
-    // TODO: Create a pop-up message method
     
-    
+    // Display Message in GUI
     private void LoadingMessage(String message) {
-	    Label card = new Label(message);
-	    card.setPadding(new Insets(16, 28, 16, 28));
-	    card.setAlignment(Pos.CENTER);
-	    getChildren().add(card);
+        Label card = new Label(message);
+        card.setPadding(new Insets(16, 28, 16, 28));
+        card.setStyle(
+            "-fx-background-color: white;" +
+            "-fx-background-radius: 12;" +
+            "-fx-border-color: #333;" +
+            "-fx-border-width: 2;" +
+            "-fx-border-radius: 12;" +
+            "-fx-font-weight: bold;"
+        );
+        card.setMaxWidth(Region.USE_PREF_SIZE);
+
+        StackPane overlay = new StackPane(card);
+        overlay.setAlignment(Pos.CENTER);
+        overlay.setStyle("-fx-background-color: rgba(0,0,0,0.35);"); 
+        overlay.setPickOnBounds(true); 
+        overlay.setOpacity(1.0); 
+        overlay.setPrefSize(SCENE_W, SCENE_H);
+
+        // Add to Pane
+        getChildren().add(overlay);
+
+        
+        // Code adapted with assistance from GeminiAI (Nov 2025).
+        // Prompt: "how to pause a label in the middle of the screen in JavaFX?"
+        // Student review: learned about PauseTransition for labels and duration
+        
+        // Pause 2 seconds
+        PauseTransition hold = new PauseTransition(Duration.millis(2000)); 
+        hold.setOnFinished(ev -> getChildren().remove(overlay));
+        
+        hold.play();
     }
     
     

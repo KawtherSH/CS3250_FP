@@ -48,10 +48,7 @@ public class Chest extends Item {
 
     // Call when unlocked
     public void onUnlocked() {
-        setIsLocked(false);
-        System.out.println("Chest opened! You obtained: " + itemName);
-        
-        // TODO: Display on GUI
+        setIsLocked(false);        
     }
 
 }

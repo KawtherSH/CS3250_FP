@@ -25,7 +25,11 @@ public class MainMenu extends BorderPane {
 	
 	// variable to start the level and settings 
 	private final Settings settings = new Settings();
+	
+	private Stage stage;
+	
 	public MainMenu(Stage stage) {
+		this.stage = stage;
 		
 		setPadding(new Insets(20));
 		
@@ -34,7 +38,7 @@ public class MainMenu extends BorderPane {
 
 		
         // Top: Displays the game title
-        Label title = new Label("Escape Room!");
+        Label title = new Label("Escape The Room!");
         title.setStyle("-fx-font-size: 37px; -fx-font-weight: bold;");
         VBox top = new VBox(title);
         top.setAlignment(Pos.TOP_CENTER);
@@ -79,19 +83,25 @@ public class MainMenu extends BorderPane {
         quitButton.setOnAction(event -> Platform.exit());
         
 	    // Code adapted with assistance from ChatGPT (Oct 2025).
-	    // Prompt: "I have a class that extends scene, how do I move to the next scene when I click a button?"
+	    // Prompt: "I have a class that extends scene, how do I move to the startLevelScene scene when I click a button?"
 	    // Student review: Used a photo for the buttons
-        // Move to the next Scene 
+        // Move to the startLevelScene Scene 
         startButton.setOnAction(e -> {
 
             // Create your Scene subclass
-            SelectLevelScene next = new SelectLevelScene();
+            startLevelScene = new SelectLevelScene(stage);
 
             // keep window size and styles
-            next.getStylesheets().addAll(stage.getScene().getStylesheets());
-            stage.setScene(next);
+            startLevelScene.getStylesheets().addAll(stage.getScene().getStylesheets());
+            stage.setScene(startLevelScene);
         });
         
     }
 
+	private SelectLevelScene startLevelScene;
+	
+	public void swapTostartLevelScene() {
+		stage.setScene(startLevelScene);
+	}
+	
 }

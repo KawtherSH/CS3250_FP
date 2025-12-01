@@ -2,7 +2,7 @@ import javafx.scene.shape.Rectangle;
 
 public class Letter extends Item {
 
-    private String imagePath = "Images/Letter.png"; // TODO:  Change the picture "WIP"
+    private String imagePath = "Images/Letter.png";
     private String riddleText = "Solve!";
 
     // Constructor

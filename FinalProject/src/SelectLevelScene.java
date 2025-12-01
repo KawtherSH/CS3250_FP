@@ -30,15 +30,14 @@ public class SelectLevelScene extends Scene
 {
 	
 	private Canvas foreground;
-	private Image avatarStripeSheet;
+	private Image controlStripeSheet;
 	
 	private StackPane rootLayer;
 
 
 	
-	public SelectLevelScene() 
+	public SelectLevelScene(Stage stage) 
 	{
-
 		super(new BorderPane(), 1000, 750);
 		
         BorderPane root = (BorderPane)getRoot();
@@ -118,7 +117,7 @@ public class SelectLevelScene extends Scene
         
         
         // TODO: Make it bigger?
-        avatarStripeSheet = loadImage("Images/Control.png");
+        controlStripeSheet = loadImage("Images/Control.PNG");
         startAnimation();
     }
 	        	 
@@ -183,7 +182,7 @@ public class SelectLevelScene extends Scene
 				if (now - lastupdate >= DELAY)
 				{
 				fgc.clearRect(200, 200, 100, 100);
-				fgc.drawImage(avatarStripeSheet, col * 100, row * 100, 100, 100, 200, 200, 100, 100);
+				fgc.drawImage(controlStripeSheet, col * 100, row * 100, 100, 100, 200, 200, 100, 100);
 				
 				col++;
 				if (col == 2)

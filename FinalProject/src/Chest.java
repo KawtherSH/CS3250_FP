@@ -20,6 +20,11 @@ public class Chest extends Item {
         return new Chest(id, name, true, r, floor);
     }
 
+    // Call when unlocked
+    public void Unlocked() {
+        setIsLocked(false);        
+    }
+
     @Override
     public boolean useOn(Object target) {
         System.out.println(this.getName() + " is being interacted with. Is locked: " + isLocked);
@@ -46,9 +51,5 @@ public class Chest extends Item {
     public String getItemName() { return itemName; }
     public void setItemName(String itemName) { this.itemName = itemName; }
 
-    // Call when unlocked
-    public void onUnlocked() {
-        setIsLocked(false);        
-    }
 
 }

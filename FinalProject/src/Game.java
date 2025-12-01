@@ -1,7 +1,5 @@
 import javafx.animation.AnimationTimer;
-import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
-import javafx.animation.SequentialTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -22,6 +20,8 @@ public class Game extends Pane {
 
     // Player
     private final Player player = new Player();
+    // Key
+    private Item playerKey = null;
     private boolean moveLeft = false, moveRight = false;
 
     private final AnimationTimer loop;
@@ -30,11 +30,13 @@ public class Game extends Pane {
     private Door topDoor, midDoor, botDoor, exitDoor;
     private int currentFloor = 1; // middle 
     
+    private Level_1 level1;
+    
     // chests
-    private Chest chest;
+    private Chest midChest, topChest;
     
     // letter
-    private Letter letter;
+    private Letter midLetter, botLetter;
 
 
     // height and width
@@ -76,43 +78,107 @@ public class Game extends Pane {
                 showBackFrame(250);
                 if (canGoDown()) stepFloor(+1);
             }
-            // E to interact with items
+            // E to interact with items/open doors
             if (c == KeyCode.E) {
-
-                if (letter != null
-                    && letter.getFloor() == currentFloor
-                    && letter.intersects(player.getBoundsInParent())) {
+            	////////////// decide which Letter the player is on
+                Letter targetLetter = null;
+                if (midLetter != null
+                        && midLetter.getFloor() == currentFloor
+                        && midLetter.intersects(player.getBoundsInParent())) {
+                    targetLetter = midLetter;
+                } else if (botLetter != null
+                        && botLetter.getFloor() == currentFloor
+                        && botLetter.intersects(player.getBoundsInParent())) {
+                    targetLetter = botLetter;
+                } 
+                
+                if ( targetLetter != null
+                    && targetLetter.getFloor() == currentFloor
+                    && targetLetter.intersects(player.getBoundsInParent())) {
 
                     Stage owner = getScene() != null && getScene().getWindow() instanceof Stage
                         ? (Stage) getScene().getWindow() : null;
 
-                    Overlay.showRiddle(owner, "Images/Letter.png", letter.getRiddleText()); 
+                    Overlay.showRiddle(owner, "Images/Letter.png", targetLetter.getRiddleText()); 
                     return;
                 }
 
-                if (chest != null
-                    && chest.getFloor() == currentFloor
-                    && chest.intersects(player.getBoundsInParent())) {
-
-                    if (chest.getIsLocked()) {
+                ////////////// decide which chest the player is on
+                Chest targetChest = null;
+                if (midChest != null
+                        && midChest.getFloor() == currentFloor
+                        && midChest.intersects(player.getBoundsInParent())) {
+                    targetChest = midChest;
+                } else if (topChest != null
+                        && topChest.getFloor() == currentFloor
+                        && topChest.intersects(player.getBoundsInParent())) {
+                    targetChest = topChest;
+                } 
+                
+                
+                if (targetChest != null)
+                {
+                	if (targetChest.getIsLocked()) {
                         Stage owner = getScene() != null && getScene().getWindow() instanceof Stage
-                            ? (Stage) getScene().getWindow() : null;
+                                ? (Stage) getScene().getWindow() : null;
+
+                        Chest chestRef = targetChest;
 
                         Overlay.showLock(owner, code -> {
-                            if (code.equals(chest.getCombo())) {
-                                chest.onUnlocked();
-                                LoadingMessage("You got: " + chest.getItemName());
-                            } else {                                
-                                LoadingMessage("Wrong Code, Noop..");
+                            if (code.equals(chestRef.getCombo())) {
+                                chestRef.Unlocked();
+
+                                String keyId;
+                                if (chestRef == midChest) {
+                                    keyId = "MID_KEY";         
+                                } else { 
+                                    keyId = "EXIT_KEY";       
+                                }
+                                
+                                // use playerKey again.. we don't need that key anymore
+                                playerKey = new Key(keyId, chestRef.getItemName());
+                                LoadingMessage("You found the: " + playerKey.getName() + "!");
+
+                            } else {
+                                LoadingMessage("Wrong code, try again.");
                             }
                         });
-                    } else {
-                    	LoadingMessage("Chest is already unlocked.");
+                        
+                	} 
+                	else 
+                	{
+                        LoadingMessage("Chest is already unlocked.");
                     }
+
+                    return;
+                }
+                    
+                ///////////////// Handling Doors
+                Door currentDoor = null;
+                
+                if (exitDoor != null
+                        && exitDoor.intersects(player.getBoundsInParent())) {
+                    currentDoor = exitDoor;
+                } else {
+                    currentDoor = doorForCurrentFloor();
+                }
+
+                if (currentDoor != null 
+                    && currentDoor.getIsLocked()
+                    && currentDoor.intersects(player.getBoundsInParent())) 
+                {
+                    if (playerKey != null) {
+                        if (currentDoor.useOn(playerKey)) {
+                            LoadingMessage("Used " + playerKey.getName() + " to unlock the " + currentDoor.getName() + "!");
+                        } else {
+                            LoadingMessage("The " + playerKey.getName() + " doesn't fit the lock.");
+                        }
+                    } else {
+                        LoadingMessage("The door is locked. Find the key!");
+                    }
+                    return;
                 }
             }
-
-            
             
         });
         
@@ -126,42 +192,19 @@ public class Game extends Pane {
         
         
         
-        
-        // TODO: Make a level # class for each level instead of everything being in Game.java...?
-        
-        
-        
-        // TODO: set the correct cords when you finish background
-        // Hitbox (x, y, w, h, floor, opacity)
-        topDoor = Door.make(100, yForFloorCenter(0) + 20, 60, 100, 0, 0.3, "D001", "Top floor Door"); // y = yForFloorCenter(#) = the cords for the floors
-        midDoor = Door.make(830, yForFloorCenter(1) + 20, 60, 100, 1, 0.3, "D002", "Middle floor Door");
-        botDoor = Door.make(100, yForFloorCenter(2) + 20, 60, 100, 2, 0.3, "D003", "Bottom floor Door");
-        
-        // TODO: add an exit door
-        exitDoor = Door.make(925, yForFloorCenter(2) +10, 60, 100, 2, 0.3, "D004", "Exit Door");
-        exitDoor.setIsLocked(false);
+        // LEVEL 1 
+        level1 = new Level_1(this, player, SCENE_W, SCENE_H);
 
-        
-        getChildren().addAll(topDoor.getRect(), midDoor.getRect(), botDoor.getRect(), exitDoor.getRect());
+        topDoor  = level1.getTopDoor();
+        midDoor  = level1.getMidDoor();
+        botDoor  = level1.getBotDoor();
+        exitDoor = level1.getExitDoor();
 
-        // pair doors with the correct (other) door and movement
-        midDoor.setUpTarget(topDoor).setDownTarget(botDoor);
-        topDoor.setDownTarget(midDoor);
-        botDoor.setUpTarget(midDoor);
-        
-        // chests 
-        chest = Chest.make(400, yForFloorCenter(1) + 40, 80, 60, 1, 0.25, "C01", "First floor chest");
-        chest.setCombo("1234");        
-        chest.setItemName("Middle Floor Key"); // player gets 
-        chest.addTo(this);
-        
-        // letter
-        letter = Letter.make(550, yForFloorCenter(1) + 10, 80, 60, 1, 0.25, "L01", "First floor letter");
-        	letter.setImagePath("Images/Letter.png");
-        	letter.setRiddleText(
-        	    "ADD: Riddle"       	    
-        	);
-    	letter.addTo(this);
+        midChest = level1.getMidChest();
+        topChest = level1.getTopChest();
+        midLetter   = level1.getMidLetter();
+        botLetter   = level1.getBotLetter();
+
 
         // Game loop
         loop = new AnimationTimer() {
@@ -213,12 +256,12 @@ public class Game extends Pane {
     private boolean canGoUp()    
     { 
     	var d = doorForCurrentFloor(); 
-    	return d != null && d.getUpTarget() != null && d.intersects(player.getBoundsInParent()); 
+    	return d != null && !d.getIsLocked() && d.getUpTarget() != null && d.intersects(player.getBoundsInParent()); 
 	}
     private boolean canGoDown()  
     { 
     	var d = doorForCurrentFloor(); 
-    	return d != null && d.getDownTarget() != null && d.intersects(player.getBoundsInParent()); 
+    	return d != null && !d.getIsLocked() && d.getDownTarget() != null && d.intersects(player.getBoundsInParent()); 
 	}
     
     // Changing floors
@@ -238,7 +281,6 @@ public class Game extends Pane {
     }
      
     
-    // TODO: Game is completed
     private boolean CompleteGame() {
         if (gameComplete || exitDoor == null) return false;
 
@@ -250,7 +292,13 @@ public class Game extends Pane {
                 gameComplete = true;
                 LoadingMessage("PHEW! You Escaped!");
                 
-                // TODO: return to Select level Scene
+                Stage stage = (Stage) this.getScene().getWindow();
+                
+                SelectLevelScene selectLevelScene = new SelectLevelScene(stage);
+                selectLevelScene.getStylesheets().add(getClass().getResource("/ThemeStyle/theme.css").toExternalForm());                
+                stage.setScene(selectLevelScene);
+                
+               // startLevelScene.getStylesheets().addAll(stage.getScene().getStylesheets());
                 
                 return true;
             } 
@@ -270,7 +318,7 @@ public class Game extends Pane {
     
     
     // Display Message in GUI
-    private void LoadingMessage(String message) {
+    public void LoadingMessage(String message) {
         Label card = new Label(message);
         card.setPadding(new Insets(16, 28, 16, 28));
         card.setStyle(

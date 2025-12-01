@@ -20,8 +20,8 @@ public class Overlay {
 
         // Image View
         ImageView paper = new ImageView(loadImage(paperImagePath));
-        paper.setFitWidth(460);
-        paper.setFitHeight(640);
+        paper.setFitWidth(560);
+        paper.setFitHeight(740);
         paper.setPreserveRatio(true);
 
         // Text
@@ -51,7 +51,7 @@ public class Overlay {
         if (owner != null) dialog.initOwner(owner);
         dialog.initModality(Modality.WINDOW_MODAL);
         dialog.setTitle("Letter");
-        dialog.setScene(new Scene(backdrop, 500, 550));
+        dialog.setScene(new Scene(backdrop, 600, 650));
         dialog.showAndWait();
     }
     

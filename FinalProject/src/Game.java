@@ -297,9 +297,7 @@ public class Game extends Pane {
                 SelectLevelScene selectLevelScene = new SelectLevelScene(stage);
                 selectLevelScene.getStylesheets().add(getClass().getResource("/ThemeStyle/theme.css").toExternalForm());                
                 stage.setScene(selectLevelScene);
-                
-               // startLevelScene.getStylesheets().addAll(stage.getScene().getStylesheets());
-                
+                                
                 return true;
             } 
             else 

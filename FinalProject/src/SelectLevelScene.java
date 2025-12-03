@@ -116,7 +116,6 @@ public class SelectLevelScene extends Scene
         root.setCenter(center);
         
         
-        // TODO: Make it bigger?
         controlStripeSheet = loadImage("Images/Control.PNG");
         startAnimation();
     }
@@ -133,10 +132,18 @@ public class SelectLevelScene extends Scene
 	            delay.setOnFinished(ev -> {
 
 	                Stage stage = (Stage) getWindow();
-	                LevelScene levelScene = new LevelScene(stage);
-	                levelScene.getGame().setLevelBackground("Images/" + label + ".png");
+	             
+	                Scene levelScene = new Scene(new BorderPane(), 1000, 700);
+	                
+	                BorderPane root = (BorderPane) levelScene.getRoot();
+	                Game game = new Game();
+	                root.setCenter(game);
+	                
+	                game.setLevelBackground("Images/" + label + ".png");
+	                levelScene.getStylesheets().addAll(stage.getScene().getStylesheets());
+	                
 	                stage.setScene(levelScene);
-	                levelScene.getGame().requestFocus();
+	                game.requestFocus();
 	            });
 	            delay.play();
 	        });
@@ -161,11 +168,13 @@ public class SelectLevelScene extends Scene
 	    return back;
     }
 	
-	// Character moving
+	// Control Display
 	private void startAnimation()
 	{
 
 		GraphicsContext fgc = foreground.getGraphicsContext2D();
+		fgc.setImageSmoothing(false);
+
 		
 		new AnimationTimer() 
 		{
@@ -174,7 +183,7 @@ public class SelectLevelScene extends Scene
 			private int col = 0;
 			
 			long lastupdate = System.nanoTime();
-			private final long DELAY = 1000_000_000; // 30 Milliseconds
+			private final long DELAY = 800_000_000; 
 
 			@Override
 			public void handle(long now) 
@@ -182,7 +191,7 @@ public class SelectLevelScene extends Scene
 				if (now - lastupdate >= DELAY)
 				{
 				fgc.clearRect(200, 200, 100, 100);
-				fgc.drawImage(controlStripeSheet, col * 100, row * 100, 100, 100, 200, 200, 100, 100);
+				fgc.drawImage(controlStripeSheet, col * 100, row * 100, 100, 100, 115, 65, 250, 250);
 				
 				col++;
 				if (col == 2)
@@ -206,7 +215,7 @@ public class SelectLevelScene extends Scene
 	// Code adapted with assistance from GeminiAI (Google) (Oct 2025).
     // Prompt: "How to make a pop-up message in JavaFX?"
     // Student review: I created a helper method to show a loading screen 
-	private void LoadingMessage(String message) {
+	public void LoadingMessage(String message) {
 	    Label card = new Label(message);
 	    card.setPadding(new Insets(16, 28, 16, 28));
 	    card.setStyle(

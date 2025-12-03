@@ -49,7 +49,7 @@ import javafx.scene.image.ImageView;
 	        view.setLayoutX(x);
 	    }
 
-	    // --- API used by Game ---
+	    // API used "Game"
 
 	    public ImageView getView() { return view; }
 

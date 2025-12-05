@@ -31,9 +31,10 @@ public class Game extends Pane {
     private int currentFloor = 1; // middle 
     
     private Level_1 level1;
+    private Level_2 level2;
     
     // chests
-    private Chest midChest, topChest;
+    private Chest midChest, topChest, botChest;
     
     // letter
     private Letter midLetter, botLetter;
@@ -51,7 +52,7 @@ public class Game extends Pane {
     private boolean gameComplete = false;
 
     
-    public Game() {
+    public Game(String levelLabel) {
         setPrefSize(SCENE_W, SCENE_H);
 
         // get player 
@@ -63,6 +64,38 @@ public class Game extends Pane {
         player.setLayoutY(yForFloorCenter(currentFloor));
         
         setFocusTraversable(true);
+        
+        
+        // LEVELS
+        if (levelLabel.equalsIgnoreCase("Level 1")) {
+            level1 = new Level_1(this, player, SCENE_W, SCENE_H);
+
+            topDoor  = level1.getTopDoor();
+            midDoor  = level1.getMidDoor();
+            botDoor  = level1.getBotDoor();
+            exitDoor = level1.getExitDoor();
+
+            midChest = level1.getMidChest();
+            topChest = level1.getTopChest();
+
+            midLetter = level1.getMidLetter();
+            botLetter = level1.getBotLetter();
+            
+        } else if (levelLabel.equalsIgnoreCase("Level 2")) {
+            level2 = new Level_2(this, player, SCENE_W, SCENE_H);
+
+            topDoor  = level2.getTopDoor();
+            midDoor  = level2.getMidDoor();
+            botDoor  = level2.getBotDoor();
+            exitDoor = level2.getExitDoor();
+
+            midChest = level2.getMidChest();
+            botChest = level2.getBotChest();
+
+            midLetter = level2.getMidLetter();
+            botLetter = level2.getBotLetter();
+        }
+        
         
         // controls 
         setOnKeyPressed(e -> {
@@ -98,8 +131,10 @@ public class Game extends Pane {
 
                     Stage owner = getScene() != null && getScene().getWindow() instanceof Stage
                         ? (Stage) getScene().getWindow() : null;
+                    
+                    String imgPath = targetLetter.getImagePath();
 
-                    Overlay.showRiddle(owner, "Images/Letter.png", targetLetter.getRiddleText()); 
+                    Overlay.showRiddle(owner, imgPath, targetLetter.getRiddleText()); 
                     return;
                 }
 
@@ -113,7 +148,11 @@ public class Game extends Pane {
                         && topChest.getFloor() == currentFloor
                         && topChest.intersects(player.getBoundsInParent())) {
                     targetChest = topChest;
-                } 
+                } else if (botChest != null
+                        && botChest.getFloor() == currentFloor
+                        && botChest.intersects(player.getBoundsInParent())) {
+                    targetChest = botChest;
+                    }
                 
                 
                 if (targetChest != null)
@@ -191,19 +230,6 @@ public class Game extends Pane {
         });
         
         
-        
-        // LEVEL 1 
-        level1 = new Level_1(this, player, SCENE_W, SCENE_H);
-
-        topDoor  = level1.getTopDoor();
-        midDoor  = level1.getMidDoor();
-        botDoor  = level1.getBotDoor();
-        exitDoor = level1.getExitDoor();
-
-        midChest = level1.getMidChest();
-        topChest = level1.getTopChest();
-        midLetter   = level1.getMidLetter();
-        botLetter   = level1.getBotLetter();
 
 
         // Game loop

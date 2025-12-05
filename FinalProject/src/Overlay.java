@@ -10,6 +10,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -28,7 +29,9 @@ public class Overlay {
         Label text = new Label(riddleText);
         text.setWrapText(true);
         text.setAlignment(Pos.CENTER);
-        text.setMaxWidth(paper.getFitWidth() * 0.7); // Fit text
+        text.setMaxWidth(paper.getFitWidth() * 0.5); // Fit text
+        text.setFont(Font.font("Verdana", 15));
+
         
         // StackPane for text in top of the image
         StackPane riddleContent = new StackPane(paper, text);

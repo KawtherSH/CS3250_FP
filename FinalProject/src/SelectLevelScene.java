@@ -136,7 +136,7 @@ public class SelectLevelScene extends Scene
 	                Scene levelScene = new Scene(new BorderPane(), 1000, 700);
 	                
 	                BorderPane root = (BorderPane) levelScene.getRoot();
-	                Game game = new Game();
+	                Game game = new Game(label);
 	                root.setCenter(game);
 	                
 	                game.setLevelBackground("Images/" + label + ".png");
